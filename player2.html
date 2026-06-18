@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Highly Classified</title>
+
+  <link rel="icon" href="imgs/secret.png" type="image/png">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
+
+  <style>
+    body {
+      font-family: 'VT323', monospace;
+      background-color: #020617;
+      background-image: 
+        linear-gradient(rgba(16, 185, 129, 0.15) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(16, 185, 129, 0.15) 1px, transparent 1px);
+      background-size: 30px 30px;
+      color: #f8fafc;
+      overflow: hidden;
+      cursor: url('https://cur.cursors-4u.net/games/gam-13/gam1282.cur'), auto;
+    }
+
+    body::after {
+      content: " ";
+      display: block;
+      position: absolute;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      right: 0;
+      background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.15) 50%);
+      z-index: 999;
+      background-size: 100% 4px;
+      pointer-events: none; 
+    }
+
+    .section-container {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
+      transform: scale(0.95);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+    }
+
+    .active-section {
+      opacity: 1;
+      pointer-events: auto;
+      transform: scale(1);
+    }
+
+    .arcade-box {
+      background: #0f172a;
+      border: 4px solid #10b981;
+      box-shadow: 10px 10px 0px #9333ea;
+    }
+
+    .arcade-btn {
+      background: #10b981;
+      color: #000;
+      border: 4px solid #fff;
+      box-shadow: 6px 6px 0px #9333ea;
+      font-size: 1.8rem;
+      text-transform: uppercase;
+      padding: 0.5rem 2rem;
+      transition: all 0.1s;
+      cursor: pointer;
+    }
+    .arcade-btn:active {
+      transform: translate(6px, 6px);
+      box-shadow: 0px 0px 0px transparent;
+    }
+
+    .text-glow {
+      text-shadow: 3px 3px 0px #9333ea;
+    }
+    .text-glow-green {
+      text-shadow: 3px 3px 0px #065f46;
+    }
+
+    #sec-3 {
+      background-image: linear-gradient(rgba(0, 0, 0, 0.85), rgba(0, 0, 0, 0.85)), url('imgs/bg.jpg');
+      background-size: cover;
+      background-position: center;
+    }
+    .c4-board {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 8px;
+      background: #581c87;
+      padding: 15px;
+      border: 6px solid #a855f7;
+      box-shadow: 10px 10px 0px #000;
+      position: relative; 
+    }
+    
+    .c4-slot {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: #020617;
+      border: 3px solid #000;
+    }
+    @media (min-width: 640px) {
+      .c4-slot { width: 55px; height: 55px; }
+    }
+    .token-p1 { 
+      background: #10b981; 
+      box-shadow: inset -4px -4px 0px rgba(0,0,0,0.4);
+    }
+    .token-p2 { 
+      background: #c084fc; 
+      box-shadow: inset -4px -4px 0px rgba(0,0,0,0.4);
+    }
+    .glow-slot {
+      animation: flashRetro 0.8s infinite;
+      cursor: pointer;
+      background: #020617;
+      border: 3px dashed #10b981;
+    }
+    @keyframes flashRetro {
+      0%, 100% { background: #020617; }
+      50% { background: #10b981; }
+    }
+
+    .vinyl-record {
+      width: 200px;
+      height: 200px;
+      border-radius: 50%;
+      background: #111;
+      border: 8px solid #333;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      box-shadow: 8px 8px 0px #000;
+    }
+    .vinyl-center {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: #10b981;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 4px solid #000;
+    }
+    .vinyl-hole { width: 15px; height: 15px; border-radius: 50%; background: #000; }
+    .spin { animation: spinRecord 2s linear infinite; }
+    @keyframes spinRecord { 100% { transform: rotate(360deg); } }
+    
+    .track-sleeve {
+      background: #1e1b4b;
+      border: 4px solid #312e81;
+      transition: all 0.1s;
+    }
+    .track-sleeve:hover {
+      transform: translate(-4px, -4px);
+      border-color: #10b981;
+      box-shadow: 6px 6px 0px #10b981;
+      color: #34d399;
+    }
+
+    @keyframes float {
+      0% { transform: translateY(0px); }
+      50% { transform: translateY(-10px); }
+      100% { transform: translateY(0px); }
+    }
+    
+    .floating {
+      animation: float 4s ease-in-out infinite;
+    }
+  </style>
+</head>
+<body class="w-full h-screen">
+
+  <audio id="bg-music" src="music/balrog.mp3" loop></audio>
+  <audio id="cheer-sfx" src="music/mario.mp3"></audio>
+
+  <div id="sec-0" class="section-container active-section">
+    <div class="arcade-box p-10 max-w-md w-full text-center">
+      <h1 class="text-5xl text-emerald-400 text-glow mb-8 tracking-wider">READY PLAYER ONE?</h1>
+      <button onclick="startExperience()" class="arcade-btn w-full">BEGIN? 🕹️</button>
+    </div>
+  </div>
+
+  <div id="sec-1" class="section-container">
+    <div class="arcade-box p-10 max-w-md w-full text-center">
+      <h1 class="text-4xl text-emerald-400 text-glow mb-6 leading-tight">Yoooo wazzup famalam pls enter ur name</h1>
+      <input type="text" id="name-input" class="w-full bg-black border-4 border-emerald-500 px-4 py-3 text-center text-3xl text-emerald-300 outline-none focus:border-purple-500 mb-8 uppercase" placeholder="_">
+      <button onclick="submitName()" class="arcade-btn w-full">PRESS START 🚀</button>
+    </div>
+  </div>
+
+  <div id="sec-2" class="section-container">
+    <div class="text-center max-w-3xl px-6 arcade-box p-10">
+      <h2 class="text-4xl md:text-5xl mb-6 leading-relaxed text-emerald-400 text-glow-green">
+        Damnnn sehruwehru huh? thats a cute asf name ngl, whoever came up with that should be given a Nobel Prize frfr 😛
+      </h2>
+      <p class="text-3xl text-purple-300 mb-10">
+        > But u should feed him a shawarma 🌯😋
+      </p>
+      <button onclick="goToSection(3)" class="arcade-btn">CONTINUE >></button>
+    </div>
+  </div>
+
+  <div id="sec-3" class="section-container">
+    <div class="text-center mb-6 arcade-box p-4 border-purple-500 box-shadow-none shadow-[6px_6px_0px_#10b981]">
+      <h2 class="text-4xl text-emerald-400">FINISH IT!</h2>
+      <p class="text-2xl text-white">Drop the token to win.</p>
+    </div>
+    
+    <div id="c4-board" class="c4-board">
+      </div>
+
+    <div id="c4-popup" class="hidden absolute inset-0 bg-black/90 flex items-center justify-center z-50">
+      <div class="arcade-box p-10 text-center transform scale-110">
+        <h2 class="text-4xl md:text-5xl text-emerald-400 text-glow mb-8 leading-tight">SEEEEE i told u Sehru, ur amazing at ts 🎉</h2>
+        <button onclick="goToSection(4)" class="arcade-btn">CLAIM PRIZE 🎵</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="sec-4" class="section-container" style="background-image: linear-gradient(rgba(0, 0, 0, 0.85), rgba(0, 0, 0, 0.85)), url('imgs/jukebox.jpg'); background-size: cover; background-position: center;">
+  <div class="w-full max-w-5xl px-4">
+    <h2 class="text-5xl text-center mb-8 text-emerald-400 text-glow">>> VIBE STATION <<</h2>
+    
+    <div class="flex flex-col md:flex-row gap-10 items-center justify-center arcade-box p-8" style="background-image: linear-gradient(rgba(15, 23, 42, 0.85), rgba(15, 23, 42, 0.85)), url('imgs/jukb.jpg'); background-size: cover; background-position: center;">
+      
+      <div class="flex-1 flex flex-col items-center justify-center floating">
+        <div id="vinyl-record" class="vinyl-record" style="background-size: cover; background-position: center;">
+          <div class="vinyl-center"><div class="vinyl-hole"></div></div>
+        </div>
+        <audio id="audio-player" class="hidden"></audio>
+        <div class="mt-8 text-center h-20 arcade-box p-4 border-2 border-emerald-500 shadow-[4px_4px_0px_#a855f7] w-full max-w-xs">
+          <p id="now-playing-title" class="text-3xl text-emerald-300">NO TAPE</p>
+          <p id="now-playing-artist" class="text-2xl text-purple-400">INSERT DISC</p>
+        </div>
+      </div>
+
+      <div class="flex-1 w-full space-y-4">
+        <p class="text-2xl text-emerald-500 mb-2">> SELECT TRACK:</p>
+        <div onmouseover="showPreview('imgs/dasies.png')" onmouseout="hidePreview()" onclick="playSong('music/DAISIES.mp3', 'Daisies', 'Justin Bieber', 'dasies.png')" class="track-sleeve p-4 cursor-pointer flex items-center justify-between">
+          <span class="text-3xl">1. Daisies</span>
+        </div>
+        <div onmouseover="showPreview('imgs/rakhlo.jpg')" onmouseout="hidePreview()" onclick="playSong('music/Rakhlo Tum Chupaake.mp3', 'Rakhlo Tum Chupake', 'Arpit Bala', 'rakhlo.jpg')" class="track-sleeve p-4 cursor-pointer flex items-center justify-between">
+          <span class="text-3xl">2. Rakhlo Tum Chupake</span>
+        </div>
+        <div onmouseover="showPreview('imgs/dieforme.jpg')" onmouseout="hidePreview()" onclick="playSong('music/Die For Me.mp3', 'Die For Me', 'Chase Atlantic', 'dieforme.jpg')" class="track-sleeve p-4 cursor-pointer flex items-center justify-between">
+          <span class="text-3xl">3. Die For Me</span>
+        </div>
+        <div onmouseover="showPreview('imgs/you.jpg')" onmouseout="hidePreview()" onclick="playSong('music/You.mp3', 'You', 'Don Toliver', 'you.jpg')" class="track-sleeve p-4 cursor-pointer flex items-center justify-between">
+          <span class="text-3xl">4. You</span>
+        </div>
+        <div onmouseover="showPreview('imgs/youreutho.jpg')" onmouseout="hidePreview()" onclick="playSong('music/Youre U Tho.mp3', 'Youre U Tho', 'Karan Aujla', 'youreutho.jpg')" class="track-sleeve p-4 cursor-pointer flex items-center justify-between">
+          <span class="text-3xl">5. Youre U Tho</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+  <script>
+  function startExperience() {
+    const bgm = document.getElementById('bg-music');
+    bgm.volume = 0.15; // Lowered to 15% volume for a cleaner background mix
+    bgm.play().catch(e => console.log("Audio autoplay restriction handled beautifully."));
+    goToSection(1);
+  }
+
+  function goToSection(sectionNumber) {
+    document.querySelectorAll('.section-container').forEach(sec => {
+      sec.classList.remove('active-section');
+    });
+    document.getElementById(`sec-${sectionNumber}`).classList.add('active-section');
+    
+    if (sectionNumber === 4) {
+      document.getElementById('bg-music').pause();
+    }
+  }
+
+  function submitName() {
+    const input = document.getElementById('name-input');
+    const btn = document.querySelector('#sec-1 button');
+    btn.disabled = true;
+    const targetText = "Sehruwehru";
+    input.value = "";
+    let i = 0;
+    const typeEffect = setInterval(() => {
+      input.value += targetText[i];
+      i++;
+      if (i >= targetText.length) {
+        clearInterval(typeEffect);
+        setTimeout(() => { goToSection(2); }, 800);
+      }
+    }, 100);
+  }
+
+  const board = document.getElementById('c4-board');
+  for (let r = 0; r < 6; r++) {
+    for (let c = 0; c < 7; c++) {
+      const slot = document.createElement('div');
+      slot.className = 'c4-slot';
+      if (r === 5 && c >= 2 && c <= 4) slot.classList.add('token-p1'); 
+      if (r === 5 && c >= 5) slot.classList.add('token-p2'); 
+      if (r === 4 && (c === 3 || c === 4)) slot.classList.add('token-p2'); 
+      if (r === 5 && c === 1) {
+        slot.id = 'winning-slot';
+        slot.classList.add('glow-slot');
+        slot.onclick = winGame;
+      }
+      board.appendChild(slot);
+    }
+  }
+
+  function winGame() {
+    const winSlot = document.getElementById('winning-slot');
+    winSlot.classList.remove('glow-slot');
+    winSlot.classList.add('token-p1');
+    winSlot.style.background = '#10b981';
+    winSlot.onclick = null;
+    
+    const cheerSfx = document.getElementById('cheer-sfx');
+    cheerSfx.volume = 0.8;
+    cheerSfx.play();
+
+    const duration = 2500;
+    const end = Date.now() + duration;
+    (function frame() {
+      confetti({ particleCount: 8, angle: 60, spread: 60, origin: { x: 0 }, colors: ['#10b981', '#a855f7', '#ffffff'], shapes: ['square'] });
+      confetti({ particleCount: 8, angle: 120, spread: 60, origin: { x: 1 }, colors: ['#10b981', '#a855f7', '#ffffff'], shapes: ['square'] });
+      if (Date.now() < end) requestAnimationFrame(frame);
+    }());
+    setTimeout(() => { document.getElementById('c4-popup').classList.remove('hidden'); }, 800);
+  }
+
+  function playSong(audioFile, title, artist, coverUrl) {
+    const record = document.getElementById('vinyl-record');
+    const titleEl = document.getElementById('now-playing-title');
+    const artistEl = document.getElementById('now-playing-artist');
+    const audioPlayer = document.getElementById('audio-player');
+
+    record.style.backgroundImage = `url('${coverUrl}')`;
+    titleEl.innerText = title;
+    artistEl.innerText = "> " + artist;
+
+    audioPlayer.src = audioFile;
+    audioPlayer.play();
+    
+    record.classList.remove('spin');
+    void record.offsetWidth; 
+    record.classList.add('spin');
+  }
+
+  function showPreview(imgUrl) {
+    const preview = document.createElement('div');
+    preview.id = 'vinyl-preview';
+    preview.className = 'fixed top-10 right-10 w-32 h-32 rounded-full border-4 border-emerald-400 spin';
+    preview.style.backgroundImage = `url('${imgUrl}')`;
+    preview.style.backgroundSize = 'cover';
+    document.body.appendChild(preview);
+  }
+
+  function hidePreview() {
+    const preview = document.getElementById('vinyl-preview');
+    if (preview) preview.remove();
+  }
+</script>
+</body>
+</html>
